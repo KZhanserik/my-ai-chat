@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Chatbot</title>
+    <style>
+        #chat-box { width: 350px; height: 400px; border: 1px solid #ccc; overflow-y: scroll; padding: 10px; font-family: sans-serif; }
+        .user { text-align: right; color: blue; margin: 5px 0; }
+        .bot { text-align: left; color: green; margin: 5px 0; }
+        #input-container { width: 350px; display: flex; margin-top: 10px; }
+        #user-input { flex: 1; padding: 8px; }
+        button { padding: 8px 15px; }
+    </style>
+</head>
+<body>
+
+<div id="chat-box"></div>
+<div id="input-container">
+    <input type="text" id="user-input" placeholder="Напишите сообщение...">
+    <button onclick="sendMessage()">Отправить</button>
+</div>
+
+<script>
+    const MAKE_WEBHOOK_URL = 'https://hook.us2.make.com/r7gfeb19i4syw23euv358ew3wrio1k31';
+    const sessionId = 'session_' + Math.random().toString(36).substr(2, 9); // Генерируем ID для сохранения контекста
+
+    async function sendMessage() {
+        const input = document.getElementById('user-input');
+        const text = input.value.trim();
+        if (!text) return;
+
+        appendMessage(text, 'user');
+        input.value = '';
+
+        try {
+            const response = await fetch(MAKE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message: text, sessionId: sessionId })
+            });
+
+            const data = await response.json();
+            appendMessage(data.output || 'Ответ получен', 'bot');
+        } catch (error) {
+            appendMessage('Ошибка отправки сообщения.', 'bot');
+        }
+    }
+
+    function appendMessage(text, sender) {
+        const box = document.getElementById('chat-box');
+        const msgDiv = document.createElement('div');
+        msgDiv.className = sender;
+        msgDiv.innerText = (sender === 'user' ? 'Вы: ' : 'Бот: ') + text;
+        box.appendChild(msgDiv);
+        box.scrollTop = box.scrollHeight;
+    }
+</script>
+
+</body>
+</html>
