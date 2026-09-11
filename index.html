@@ -66,11 +66,12 @@
                 body: JSON.stringify({ message: text, sessionId: sessionId })
             });
 
-            const data = await response.json();
+            // ИЗМЕНЕНИЕ ЗДЕСЬ: Читаем ответ от Make как простой текст
+            const botAnswer = await response.text();
+            
             document.getElementById(loadingId)?.remove();
-
-            const botAnswer = data.output || data.response || 'Ответ получен.';
             appendMessage(botAnswer, 'bot');
+            
         } catch (error) {
             document.getElementById(loadingId)?.remove();
             appendMessage('Ошибка соединения. Проверьте CORS в Make.', 'bot');
